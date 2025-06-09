@@ -13,16 +13,16 @@ const pool = mysql.createPool({
 });
 
 app.get("/api/message", (req, res) => {
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      res.send("db connection failed");
-      console.error("Database connection failed: " + err.stack);
-      return;
-    }
-    res.send("db connection successful finished pipeline");
-    console.log("Connected to database.");
-    connection.release(); // release back to the pool
-  });
+ pool.getConnection(function (err, connection) {
+ if (err) {
+ console.error("Database connection failed: " + err.stack);
+ return res.status(500).json({ message: "db connection failed" }); // ✅ JSON
+ }
+
+ console.log("Connected to database.");
+ connection.release();
+ res.json({ message: "db connection successful finished pipeline" }); // ✅ JSON
+ });
 });
 
 app.get("/health", (req, res) => {
