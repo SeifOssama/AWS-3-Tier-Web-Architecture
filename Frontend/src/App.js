@@ -8,7 +8,7 @@ function App() {
 
   const fetchMessage = () => {
     fetch(`${apiUrl}/message`)
-      .then((res) => res.json())
+      .then((res) => res.text())
       .then((data) => setMessage(data.message))
       .catch((err) => {
         console.error("Error fetching message:", err);
