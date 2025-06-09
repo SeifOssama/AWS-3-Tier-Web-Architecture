@@ -1,13 +1,15 @@
 #!/bin/bash
 
 # Update and install dependencies
-apt update -y
-apt install -y nginx git nodejs npm
+sudo apt update -y
+sudo apt install -y nginx git nodejs npm docker.io
 sudo npm install -g n
 sudo n 18
+echo "ay7aga" >> app.log
+echo $backend_alb_dns >> app.log
 
 # Configure nginx with proxy for /api to backend ALB
-cat > /etc/nginx/sites-available/default <<EOF
+sudo cat > /etc/nginx/sites-available/default <<EOF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -22,7 +24,7 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://$backend_alb_dns:3000;
+        proxy_pass http://${backend_alb_dns}:5050;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -32,17 +34,18 @@ server {
 }
 EOF
 
+echo $backend_alb_dns >> app2.log
 
 # Restart nginx to apply config
-systemctl reload nginx
-
+sudo systemctl reload nginx
+sudo systemctl enable docker
 # Clone your React app from GitHub
 cd /home/ubuntu
-git clone https://github.com/sallmayasser/3-tier-AWS-architecture-using-Terraform.git
-cd 3-tier-AWS-architecture-using-Terraform/Frontend
+git clone https://github.com/SeifOssama/AWS-3-Tier-Web-Architecture.git
+cd AWS-3-Tier-Web-Architecture/Frontend
 
 # Install dependencies
-npm install
+sudo npm install
 
 # Build with relative API URL for proxying via Nginx
 REACT_APP_API_URL="/api" npm run build
@@ -51,4 +54,5 @@ REACT_APP_API_URL="/api" npm run build
 cp -r build/* /var/www/html/
 
 # Restart Nginx after copying files
-systemctl restart nginx
+sudo systemctl restart nginx
+
